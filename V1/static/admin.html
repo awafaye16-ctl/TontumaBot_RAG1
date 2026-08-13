@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TontumaBot — Admin RAG</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --card: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.1);
+    --text: #e8edf9;
+    --muted: #94a0c0;
+    --green: #22d39a;
+    --green2: #0ea87a;
+    --accent: #4f7cff;
+    --red: #ff5c7a;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(79,124,255,0.16), transparent 60%),
+      radial-gradient(800px 500px at 5% 110%, rgba(34,211,154,0.1), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 30px 16px;
+  }
+  .container { width: 100%; max-width: 980px; }
+  header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .logo {
+    width: 46px; height: 46px; border-radius: 13px;
+    background: linear-gradient(135deg, var(--green), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 23px; font-weight: 800; color: #fff;
+    box-shadow: 0 8px 30px rgba(79,124,255,0.4);
+  }
+  h1 { font-size: 20px; font-weight: 700; }
+  .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .stats { display: flex; gap: 10px; }
+  .stat {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 8px 14px; text-align: center;
+  }
+  .stat .n { font-size: 20px; font-weight: 800; color: var(--green); }
+  .stat .l { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .btn {
+    background: linear-gradient(135deg, var(--green), var(--green2));
+    color: #04231a; font-weight: 700; border: none; border-radius: 12px;
+    padding: 11px 18px; font-size: 13px; cursor: pointer; transition: all .2s;
+  }
+  .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .btn.ghost { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+  .btn.danger { background: rgba(255,92,122,.15); color: var(--red); border: 1px solid rgba(255,92,122,.4); }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    backdrop-filter: blur(10px); padding: 20px; margin-bottom: 18px;
+  }
+  .card h2 { font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .drop {
+    border: 2px dashed var(--border); border-radius: 12px; padding: 26px;
+    text-align: center; color: var(--muted); cursor: pointer; font-size: 13px; transition: all .2s;
+  }
+  .drop:hover, .drop.drag { border-color: var(--accent); background: rgba(79,124,255,0.06); color: var(--text); }
+  .drop b { color: var(--accent); }
+
+  textarea, input[type="text"] {
+    width: 100%; background: rgba(0,0,0,0.25); border: 1px solid var(--border);
+    border-radius: 12px; color: var(--text); padding: 12px; font-size: 13px;
+    font-family: inherit; transition: border .2s;
+  }
+  textarea:focus, input:focus { outline: none; border-color: var(--accent); }
+  .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin: 12px 0 6px; }
+  .row { display: flex; gap: 10px; margin-top: 12px; }
+  .fileinfo { font-size: 12px; color: var(--green); margin-top: 8px; }
+
+  .doc { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; background: rgba(0,0,0,0.15); }
+  .doc .icon { font-size: 20px; }
+  .doc .info { flex: 1; min-width: 0; }
+  .doc .title { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .doc .meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .doc .del { background: none; border: none; color: var(--red); font-size: 16px; cursor: pointer; opacity: .6; transition: all .2s; }
+  .doc .del:hover { opacity: 1; }
+
+  .empty { text-align: center; color: var(--muted); padding: 20px; font-size: 13px; }
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #1a2340; border: 1px solid var(--accent); padding: 11px 20px;
+    border-radius: 12px; font-size: 13px; z-index: 50; display: none;
+  }
+  .toast.show { display: block; animation: pop .2s ease; }
+  @keyframes pop { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateX(-50%); } }
+  .link { color: var(--accent); text-decoration: none; font-size: 13px; }
+  .link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">T</div>
+    <div>
+      <h1>TontumaBot — Admin RAG</h1>
+      <div class="sub">Gérez la base documentaire qui alimente le chat</div>
+    </div>
+    <div class="header-right">
+      <div class="stats">
+        <div class="stat"><div class="n" id="stat-docs">0</div><div class="l">Documents</div></div>
+        <div class="stat"><div class="n" id="stat-chunks">0</div><div class="l">Chunks</div></div>
+      </div>
+      <a class="link" href="/" target="_blank">Ouvrir le chat →</a>
+    </div>
+  </header>
+
+  <div class="card">
+    <h2>📥 Ajouter un document</h2>
+    <div class="grid2">
+      <div>
+        <div class="drop" id="drop">📄 <b>Cliquez</b> ou déposez un fichier<br><span style="font-size:11px">TXT · MD · PDF</span></div>
+        <input type="file" id="file" accept=".txt,.md,.pdf" hidden>
+        <div class="fileinfo" id="fileinfo"></div>
+      </div>
+      <div>
+        <div class="label">Ou collez du texte directement</div>
+        <textarea id="text" rows="5" placeholder="Collez le contenu d'une procédure, d'un arrêté, d'un guide…"></textarea>
+        <div class="label">Titre du document</div>
+        <input type="text" id="title" placeholder="Ex : Procédure carte d'identité">
+        <div class="row">
+          <button class="btn" id="upload">Indexer dans la BD vectorielle</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🗂️ Documents indexés
+      <button class="btn danger" id="clear" style="margin-left:auto;padding:6px 12px;font-size:12px">Tout vider</button>
+    </h2>
+    <div id="docs"></div>
+    <div class="empty" id="empty" style="display:none">Aucun document indexé. Ajoutez un document ci-dessus — le chat pourra alors répondre à partir de votre base.</div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let selectedFile = null;
+
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function refresh() {
+  const res = await fetch('/admin/documents');
+  const data = await res.json();
+  $('stat-docs').textContent = data.documents.length;
+  $('stat-chunks').textContent = data.total_chunks;
+
+  const wrap = $('docs');
+  wrap.innerHTML = '';
+  const empty = $('empty');
+  empty.style.display = data.documents.length ? 'none' : 'block';
+
+  data.documents.forEach(d => {
+    const div = document.createElement('div');
+    div.className = 'doc';
+    div.innerHTML = `
+      <div class="icon">📄</div>
+      <div class="info">
+        <div class="title">${esc(d.title)}</div>
+        <div class="meta">${d.chunks} chunks · ${d.added ? new Date(d.added).toLocaleString() : ''}</div>
+      </div>
+      <button class="del" title="Supprimer">🗑</button>`;
+    div.querySelector('.del').addEventListener('click', async () => {
+      if (!confirm('Supprimer ce document ?')) return;
+      const r = await fetch('/admin/documents/' + encodeURIComponent(d.id), { method: 'DELETE' });
+      if (r.ok) { toast('Document supprimé'); refresh(); } else toast('Erreur suppression');
+    });
+    wrap.appendChild(div);
+  });
+}
+
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// Drop / fichier
+const drop = $('drop'), file = $('file');
+drop.addEventListener('click', () => file.click());
+['dragover','dragenter'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('drag'); }));
+['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('drag'); }));
+file.addEventListener('change', () => {
+  const f = file.files[0];
+  if (!f) return;
+  selectedFile = f;
+  $('fileinfo').textContent = 'Fichier prêt : ' + f.name + ' (' + (f.size/1024).toFixed(0) + ' Ko)';
+});
+
+$('upload').addEventListener('click', async () => {
+  const title = $('title').value.trim();
+  const text = $('text').value.trim();
+  if (!selectedFile && !text) return toast('Ajoutez un fichier ou un texte.');
+
+  const fd = new FormData();
+  if (title) fd.append('title', title);
+  if (selectedFile) fd.append('file', selectedFile);
+  else fd.append('text', text);
+
+  $('upload').disabled = true;
+  $('upload').textContent = 'Indexation en cours…';
+  try {
+    const r = await fetch('/admin/documents', { method: 'POST', body: fd });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || 'Erreur');
+    toast(`✅ ${d.chunks} chunk(s) indexés`);
+    $('text').value = ''; $('title').value = ''; $('fileinfo').textContent = ''; selectedFile = null;
+    refresh();
+  } catch (e) {
+    toast('❌ ' + e.message);
+  }
+  $('upload').disabled = false;
+  $('upload').textContent = 'Indexer dans la BD vectorielle';
+});
+
+$('clear').addEventListener('click', async () => {
+  if (!confirm('Supprimer TOUS les documents indexés ?')) return;
+  await fetch('/admin/documents/clear', { method: 'POST' });
+  toast('Base vidée');
+  refresh();
+});
+
+refresh();
+</script>
+</body>
+</html>

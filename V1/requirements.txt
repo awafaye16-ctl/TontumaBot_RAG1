@@ -1,0 +1,28 @@
+# Machine Learning / Traduction
+torch
+transformers
+sentencepiece
+
+# Recherche
+rank-bm25
+sentence-transformers
+chromadb
+pypdf
+
+# Entrées multimodales
+pytesseract
+Pillow
+SpeechRecognition
+openai-whisper
+
+# API / LLM
+fastapi
+uvicorn
+groq
+google-generativeai
+
+# TTS
+edge-tts
+
+# Divers
+langdetect
