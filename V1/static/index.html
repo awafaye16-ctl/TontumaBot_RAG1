@@ -106,6 +106,12 @@
   }
   .tool:hover { border-color: var(--accent); color: var(--text); }
   .tool .fn { font-size: 10px; opacity: .7; }
+  .tool.rec {
+    background: rgba(255,92,122,0.18); border-color: rgba(255,92,122,0.6);
+    color: #ff8ba1; animation: pulse 1.2s infinite;
+  }
+  .tool.rec:hover { color: #ff8ba1; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,92,122,0.35); } 50% { box-shadow: 0 0 0 9px rgba(255,92,122,0); } }
   .inputrow { display: flex; gap: 10px; align-items: flex-end; }
   textarea {
     flex: 1; background: rgba(0,0,0,0.25);
@@ -168,7 +174,7 @@
 
   <div class="composer">
     <div class="tools">
-      <button class="tool" id="btn-audio">🎙️ <span>Note vocale</span> <span class="fn">WAV/MP3</span></button>
+      <button class="tool" id="btn-audio">🎙️ <span>Parler</span> <span class="fn" id="rec-timer">micro</span></button>
       <button class="tool" id="btn-image">🖼️ <span>Photo / Doc</span> <span class="fn">OCR</span></button>
     </div>
     <div class="fileinfo" id="fileinfo"></div>
@@ -181,13 +187,13 @@
     </div>
     <div class="examples">
       <span class="chip" data-q="dama beug wout kayitu juddu ?">🇸🇳 dama beug wout kayitu juddu ?</span>
+      <span class="chip" data-q="dama beug dem batima A?">🇸🇳 dama beug dem batima A?</span>
       <span class="chip" data-q="Où dois-je déposer ma demande de carte d'identité ?">Où déposer ma demande ?</span>
       <span class="chip" data-q="Comment créer une entreprise au Sénégal ?">Créer une entreprise ?</span>
       <span class="chip" data-q="Combien coûte un passeport ?">Coût d'un passeport ?</span>
     </div>
   </div>
 
-  <input type="file" id="file-audio" accept="audio/*,.wav,.mp3,.m4a" hidden>
   <input type="file" id="file-image" accept="image/*" hidden>
   <div class="toast" id="toast"></div>
 </div>
@@ -336,16 +342,60 @@ function bindFile(btnId, inputId, accept, action) {
     input.value = '';
   });
 }
-bindFile('btn-audio', 'file-audio', 'audio/*,.wav,.mp3,.m4a',
-  f => sendFile('/ask/audio', f, 'Transcription vocale en cours…'));
 bindFile('btn-image', 'file-image', 'image/*',
   f => sendFile('/ask/image', f, 'Extraction OCR en cours…'));
+
+// ---- Enregistrement micro (MediaRecorder) ----
+const recBtn = $('btn-audio'), recTimer = $('rec-timer');
+let mediaRecorder = null, chunks = [], recStart = 0, recTimerId = null;
+
+function fmtTime(ms) {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60), r = s % 60;
+  return m + ':' + String(r).padStart(2, '0');
+}
+
+async function toggleRecord() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') { stopRecording(); return; }
+  if (!navigator.mediaDevices || !window.MediaRecorder) {
+    toast('Micro non supporté par ce navigateur');
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    chunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+      stream.getTracks().forEach(t => t.stop());
+      recBtn.classList.remove('rec');
+      recTimer.textContent = 'micro';
+      clearInterval(recTimerId);
+      const file = new File([blob], 'microphone.' + (mediaRecorder.mimeType.includes('mp4') ? 'm4a' : 'webm'), { type: mediaRecorder.mimeType || 'audio/webm' });
+      sendFile('/ask/audio', file, 'Transcription vocale en cours…');
+    };
+    mediaRecorder.start();
+    recStart = Date.now();
+    recTimer.textContent = '0:00';
+    recBtn.classList.add('rec');
+    recTimerId = setInterval(() => recTimer.textContent = fmtTime(Date.now() - recStart), 250);
+    toast('🎙️ Enregistrement… recliquez pour arrêter');
+  } catch (e) {
+    toast('❌ Micro inaccessible : ' + e.message);
+  }
+}
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+}
+
+recBtn.addEventListener('click', toggleRecord);
 
 // message de bienvenue
 addMsg('bot',
   '<span class="lang-tag">Assistant administratif sénégalais</span>' +
   'Salam aléikum ! 👋 Je vous aide pour vos démarches administratives.<br>' +
-  'Posez votre question en <b>wolof</b> ou en <b>français</b>, par texte, voix ou photo.');
+  'Posez votre question en <b>wolof</b> ou en <b>français</b> : tapez, <b>parlez dans le micro</b> 🎙️ ou envoyez une photo.');
 </script>
 </body>
 </html>

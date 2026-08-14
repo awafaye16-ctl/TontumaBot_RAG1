@@ -1,0 +1,23 @@
+services:
+  tontuma:
+    build: .
+    image: tontuma:latest
+    container_name: tontuma
+    ports:
+      - "8001:8000"
+    env_file:
+      - .env
+    environment:
+      - PORT=8000
+      # WOLOF_TTS_MODEL=bilalfaye/speecht5_tts-wolof-v0.2  (défaut dans config.py)
+    volumes:
+      - ./data:/app/data        # base vectorielle ChromaDB + speaker_embedding.npy
+      - ./uploads:/app/uploads  # fichiers ingérés / OCR / STT
+      - ./models:/app/models    # cache HuggingFace (NLLB, embeddings, whisper, TTS)
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s

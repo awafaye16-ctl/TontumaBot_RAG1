@@ -18,11 +18,14 @@ openai-whisper
 # API / LLM
 fastapi
 uvicorn
+python-multipart
 groq
 google-generativeai
 
 # TTS
 edge-tts
+datasets
+scipy
 
 # Divers
 langdetect

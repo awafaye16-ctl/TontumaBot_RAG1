@@ -87,11 +87,12 @@ def answer(
         trace["french_to_wolof"] = {"seconds": d2}
 
     if tts:
-        from tts.tts import synthesize
+        from tts.tts import synthesize, source as tts_source
 
         text_for_tts = response.get("response_wo", response_fr)
         synthesize(text_for_tts, tts_out)
         response["audio"] = tts_out
+        trace["tts"] = tts_source()
 
     return response
 

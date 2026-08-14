@@ -1,0 +1,15 @@
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.git
+.gitignore
+.env
+*.mp3
+models
+uploads
+data/chroma
+tests
+*.png
+*.ipynb
+response.mp3

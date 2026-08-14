@@ -31,6 +31,7 @@ class Settings:
     STT_LANGUAGE = os.getenv("STT_LANGUAGE", "")
     OCR_LANGS = os.getenv("OCR_LANGS", "fra+eng")
     EMBED_MODEL = os.getenv("EMBED_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+    WOLOF_TTS_MODEL = os.getenv("WOLOF_TTS_MODEL", "bilalfaye/speecht5_tts-wolof-v0.2")
     HOST = os.getenv("HOST", "0.0.0.0")
     PORT = int(os.getenv("PORT", "8000"))
 
