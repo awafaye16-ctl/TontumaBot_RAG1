@@ -6,6 +6,8 @@ L'utilisateur pose une question en **wolof ou en français**, par **texte, voix 
 
 Les documents de la base sont gérés via l'**interface admin** (`/admin`) : upload de fichiers (TXT, MD, PDF) ou collage de texte, découpage en chunks, indexation d'embeddings et suppression.
 
+La saisie est **multimodale** : texte, **enregistrement vocal direct via le micro** (🎙️ dans l'interface), photo/document (OCR) ou réponse vocale wolof (TTS).
+
 ## Architecture
 
 ```
@@ -59,12 +61,16 @@ V1/
 ├── demo.py                     # démo CLI sans modèles lourds
 ├── requirements.txt
 ├── .env.example                # modèle du fichier .env (clés API)
+├── Dockerfile                  # image de production (torch CPU)
+├── docker-compose.yml          # orchestration (ports, volumes, healthcheck)
+├── .dockerignore
 ├── data/
 │   ├── seed_docs.py            # base documentaire de démonstration
-│   └── documents/              # documents à ingérer (TXT/MD/PDF)
+│   ├── documents/              # documents à ingérer (TXT/MD/PDF)
+│   ├── speaker_embedding.npy   # voix TTS (xvector CMU Arctic)
 │   └── chroma/                 # base vectorielle persistante (auto)
 ├── static/
-│   ├── index.html              # interface web de test (mode chat)
+│   ├── index.html              # interface web de test (mode chat + micro)
 │   └── admin.html              # interface admin RAG (upload docs)
 └── src/
     ├── config.py               # configuration depuis .env
@@ -82,7 +88,7 @@ V1/
     │   ├── hybrid.py           # BM25 + vectoriel
     │   └── filtered.py         # recherche filtrée
     ├── generation/llm.py       # Groq / Gemini (fallback sans clé)
-    └── tts/tts.py              # synthèse vocale (edge-tts)
+    └── tts/tts.py              # TTS wolof SpeechT5 (+ fallback edge-tts)
 ```
 
 ## Installation
@@ -111,7 +117,6 @@ source .venv/bin/activate
 
 # 2. Dépendances
 pip install -r requirements.txt
-pip install python-multipart
 
 # 3. Configuration
 cp .env.example .env
@@ -125,6 +130,35 @@ Ouvrir <http://localhost:8001> (interface web de test). La documentation Swagger
 
 > Le port 8000 est utilisé par défaut ; si occupé, utilisez un autre port via `PORT=...`.
 
+## Docker
+
+### Démarrage avec Docker
+
+```bash
+cd V1
+
+# 1. Configuration
+cp .env.example .env
+# → renseigner GROQ_API_KEY ou GEMINI_API_KEY dans .env
+
+# 2. Construire et lancer
+docker compose up --build
+```
+
+- Interface : <http://localhost:8001> (port hôte `8001` → conteneur `8000`).
+- Le **premier build est long** (torch CPU, transformers, whisper… ~8 Go de téléchargement).
+- **Volumes persistants** :
+  - `./data:/app/data` — base ChromaDB + voix TTS (`speaker_embedding.npy`) ;
+  - `./uploads:/app/uploads` — fichiers ingérés / OCR / STT ;
+  - `./models:/app/models` — caches HuggingFace (NLLB, embeddings, whisper, TTS) téléchargés au premier usage et conservés entre les redémarrages.
+
+### Notes Docker
+
+- **Torch CPU uniquement** : installé depuis l'index CPU (`pip install torch --index-url .../whl/cpu`), l'image est ~10× plus petite que la variante CUDA. Les modèles tournent sur CPU (plus lent, mais zéro GPU requis).
+- **Modèles téléchargés au premier usage** : le conteneur démarre vite ; NLLB, embeddings, whisper et le TTS wolof se téléchargent dans `models/` à la première requête qui en a besoin.
+- **Arrêt** : `docker compose down` (les volumes `./data`, `./uploads`, `./models` restent sur l'hôte).
+- **Sans clé API LLM**, le générateur retombe en *mode fallback* : il renvoie le passage le plus pertinent du contexte retrouvé.
+
 ## Configuration (.env)
 
 | Variable | Description | Défaut |
@@ -134,6 +168,7 @@ Ouvrir <http://localhost:8001> (interface web de test). La documentation Swagger
 | `LLM_PROVIDER` | `groq` ou `gemini` | `groq` |
 | `NLLB_MODEL` | Modèle de traduction | `bilalfaye/nllb-200-distilled-600M-wo-fr-en` |
 | `EMBED_MODEL` | Modèle d'embedding (multilingue FR/WO) | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` |
+| `WOLOF_TTS_MODEL` | Modèle TTS wolof (SpeechT5) — vide = voix FR edge-tts | `bilalfaye/speecht5_tts-wolof-v0.2` |
 | `STT_MODEL_PATH` | Chemin du LoRA whisper wolof (sinon Whisper small) | `./wolof-whisper-small-lora` |
 | `STT_LANGUAGE` | Langue STT (`wo`) ou vide = auto | vide |
 | `OCR_LANGS` | Langues tesseract | `fra+eng` |
@@ -206,7 +241,7 @@ curl "http://localhost:8001/translate?text=dama%20soxla%20doctoor&direction=wo2f
 
 ## Pipeline détaillé
 
-1. **Entrée** : texte brut, audio (whisper LoRA wolof), ou image (pytesseract OCR).
+1. **Entrée** : texte brut, **enregistrement micro** (MediaRecorder → `/ask/audio`), ou image (pytesseract OCR).
 2. **Unification** : toutes les entrées deviennent du texte.
 3. **Détection de langue** : lexique wolof → `wo` ou `fr` (`src/language/detector.py`).
 4. **Traduction WO→FR** : NLLB-200 fine-tuné wolof (`bilalfaye/nllb-200-distilled-600M-wo-fr-en`).
@@ -216,7 +251,7 @@ curl "http://localhost:8001/translate?text=dama%20soxla%20doctoor&direction=wo2f
    - *orientation* → **recherche vectorielle** sur les chunks, ou **recherche filtrée** seed par métadonnées (`lieu`, `service`, `cout`).
 7. **Génération** : LLM Groq (llama-3.3-70b) ou Gemini, strictement sur le contexte retrouvé.
 8. **Retour à la langue d'origine** : si la question était en wolof, la réponse FR est re-traduite en wolof.
-9. **Sortie** : texte (+ **TTS** edge-tts optionnel pour la note vocale).
+9. **Sortie** : texte (+ **TTS** wolof SpeechT5 optionnel pour la note vocale, fallback edge-tts FR). Le texte est nettoyé avant synthèse (chiffres → mots, ponctuation douce, mots anglais retirés) et découpé en phrases courtes, car le modèle SpeechT5 wolof dégénère en bruit sur les textes longs ou les chiffres.
 
 ## Composants modèles
 
@@ -230,7 +265,9 @@ curl "http://localhost:8001/translate?text=dama%20soxla%20doctoor&direction=wo2f
 | Recherche | `rank-bm25` + ChromaDB | Contexte RAG (hybride) |
 | Extraction docs | `pypdf` | PDF → texte (ingestion) |
 | LLM | Groq (`llama-3.3-70b-versatile`) / Gemini | Génération |
-| TTS | `edge-tts` | Texte wolof → audio |
+| TTS | `bilalfaye/speecht5_tts-wolof-v0.2` (SpeechT5 + HiFi-GAN) | Texte wolof/français → audio |
+| Voix TTS | xvector CMU Arctic (voix `slt`) | Identité vocale du TTS |
+| Déploiement | Docker (torch CPU) | Conteneurisation + persistence volumes |
 
 ## Tests rapides
 
@@ -260,8 +297,9 @@ python src/translation/nllb.py
 | `test_pipeline.py` | Flux complet en mode fallback (sans API) |
 | `test_api.py` | Endpoints FastAPI via TestClient (`/health`, `/ask`, `/`) |
 | `test_nllb.py` | Traduction NLLB réelle (désactivé sans `RUN_NLLB_TESTS=1`) |
+| `test_tts.py` | TTS : fallback edge-tts sans modèle wolof, moteur actif |
 
-Résultat actuel : **27 passés, 3 désactivés (NLLB), 0 échec** (30 passés avec `RUN_NLLB_TESTS=1`).
+Résultat actuel : **29 passés, 3 désactivés (NLLB), 0 échec** (32 passés avec `RUN_NLLB_TESTS=1`).
 
 ## Admin RAG (base documentaire vectorielle)
 
@@ -282,7 +320,8 @@ Lorsqu'une question est posée dans le chat, la recherche hybride **BM25 + vecto
 
 ## Roadmap V2 (idées)
 
-- Voix TTS wolof native (le LoRA whisper + voix wolof dédiées).
-- Dockerfile + `docker-compose.yml`.
+- Améliorer la qualité TTS wolof (essayer `galsenai/xTTS-v2-wolof` ou API Khaya AI).
+- Voix TTS wolof native additionnelles (variation de la voix `slt`).
 - Authentification API et déploiement (Streamlit/Frontend dédié).
 - Re-embedding automatique et gestion des doublons.
+- Support GPU optionnel dans Docker (`--gpus all` + index CUDA).
