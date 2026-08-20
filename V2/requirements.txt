@@ -1,0 +1,43 @@
+# ML / Traduction
+torch
+transformers==4.46.3
+sentencepiece
+
+# Recherche
+rank-bm25
+sentence-transformers
+chromadb
+pypdf
+sentencepiece
+
+# STT
+openai-whisper
+SpeechRecognition
+
+# LLM
+fastapi
+uvicorn
+python-multipart
+groq
+google-generativeai
+
+# TTS
+edge-tts
+datasets
+scipy
+numpy<2.0
+
+# Oolel-Voices
+librosa>=0.10.2
+diffusers==0.29.0
+conformer==0.3.2
+safetensors
+omegaconf
+soundfile
+
+# Reranker
+sentencepiece
+
+# Divers
+langdetect
+pillow
