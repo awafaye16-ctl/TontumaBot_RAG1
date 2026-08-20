@@ -82,6 +82,7 @@ class TTS:
     def __init__(
         self,
         tts_checkpoint="bilalfaye/speecht5_tts-wolof-v0.2",
+        #tts_checkpoint="bilalfaye/speecht5_tts-wolof",
         vocoder_checkpoint="microsoft/speecht5_hifigan",
         speaker_encoder_source="speechbrain/spkrec-xvect-voxceleb",
         audio_path=None,
