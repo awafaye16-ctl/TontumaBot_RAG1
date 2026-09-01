@@ -9,15 +9,15 @@ Original file is located at
 # 1. Importation des bibliotheques
 """
 
-!pip install langchain langchain-community langchain-google-genai chromadb pypdf python-dotenv streamlit
-!pip install langchain-groq sentence-transformers
-!pip install langchain-google-vertexai
+# !pip install langchain langchain-community langchain-google-genai chromadb pypdf python-dotenv streamlit
+# !pip install langchain-groq sentence-transformers
+# !pip install langchain-google-vertexai
 
-!pip install langchain-text-splitters
+# !pip install langchain-text-splitters
 
-import os
-from langchain_community.document_loaders import PyPDFLoader, TextLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+# import os
+# from langchain_community.document_loaders import PyPDFLoader, TextLoader
+# from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 """# 2. Chargement du fichier selon son extension (.pdf, .txt, .docx)"""
 

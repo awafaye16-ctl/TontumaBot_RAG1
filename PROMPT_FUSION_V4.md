@@ -11,7 +11,7 @@ Créer **TontumaBot**, un assistant conversationnel intelligent pour aider les c
 1. **Comprendre la question** de l'utilisateur (texte ou audio en wolof/français)
 2. **Chercher l'information** dans une base de documents administratifs (procédures, tarifs, lieux, contacts)
 3. **Répondre clairement** dans la langue de l'utilisateur
-4. **Proposer une réponse vocale** en wolof si demandé
+4. **Proposer une réponse vocale ou texte** en wolof ou français
 
 ---
 
