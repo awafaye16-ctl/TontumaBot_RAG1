@@ -1,13 +1,64 @@
+# ── Python ────────────────────────────────────────────
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
-.env
-venv*/
-oolel/
-uploads/
-static/response.mp3
-static/response.wav
-data/chroma/
-*.sqlite3
-.DS_Store
+*.pyd
+.Python
 *.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# ── Environnements virtuels ───────────────────────────
+venv/
+env/
+.venv/
+.env_local
+
+# ── Données sensibles ─────────────────────────────────
+# NE PAS ignorer .env (contient la config du projet)
+# Les clés sont dans .env — ne pas commiter si public
+
+# ── Modèles lourds (poids > 100 MB) ──────────────────
+*.safetensors
+*.bin
+*.ckpt
+*.h5
+*.pt
+*.pth
+*.msgpack
+
+# ── Base vectorielle ChromaDB ─────────────────────────
+V3/data/chroma/
+V2/data/chroma/
+V1/data/chroma/
+
+# ── Fichiers audio générés ────────────────────────────
+*.wav
+*.mp3
+*.aac
+*.m4a
+*.webm
+uploads/
+
+# ── Fichiers systèmes ─────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ── IDE ───────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.code-workspace
+
+# ── Résultats d'évaluation ────────────────────────────
+resultats_ragas/
+
+# ── Cache HuggingFace local (dossiers modèles locaux) ─
+V3/src/stt_wolof-whisper-small-lora/
+V3/src/Wo_fr_bilalfayenllb-200-distilled-600M-wo-fr-en/
+V3/src/Fr-Wo_Lahadnllb200-francais-wolof/
+V1/uploads/
+V2/uploads/
