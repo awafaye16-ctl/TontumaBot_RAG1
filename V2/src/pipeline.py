@@ -64,7 +64,7 @@ def _search_and_rerank(question_fr: str, intent: str, seed_docs=None, seed_filte
 def answer(
     unified_text: str,
     provider: str = "groq",
-    tts: bool = False,
+    tts: bool = True,
     tts_engine: str = None,
     tts_out: str = "response.mp3",
     seed_docs: list[str] = None,
