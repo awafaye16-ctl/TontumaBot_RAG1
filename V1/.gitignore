@@ -1,7 +1,0 @@
-__pycache__/
-*.pyc
-.venv/
-models/
-data/documents/*.pdf
-*.mp3
-.env

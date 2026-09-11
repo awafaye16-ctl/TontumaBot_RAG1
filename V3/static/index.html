@@ -25,10 +25,10 @@
     }
 
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Segoe UI', system-ui, sans-serif;
       background:
-        radial-gradient(1200px 600px at 80% -10%, rgba(79, 124, 255, 0.18), transparent 60%),
-        radial-gradient(800px 500px at 10% 110%, rgba(34, 211, 154, 0.12), transparent 60%),
+        radial-gradient(1200px 600px at 80% -10%, rgba(79, 124, 255, .18), transparent 60%),
+        radial-gradient(800px 500px at 10% 110%, rgba(34, 211, 154, .12), transparent 60%),
         var(--bg);
       color: var(--text);
       height: 100vh;
@@ -64,7 +64,7 @@
       font-size: 23px;
       font-weight: 800;
       color: #fff;
-      box-shadow: 0 8px 30px rgba(79, 124, 255, 0.4);
+      box-shadow: 0 8px 30px rgba(79, 124, 255, .4);
       flex-shrink: 0;
     }
 
@@ -96,7 +96,7 @@
 
     .badge.on {
       color: var(--green);
-      border-color: rgba(34, 211, 154, 0.4);
+      border-color: rgba(34, 211, 154, .4);
     }
 
     /* ---- Chat ---- */
@@ -129,12 +129,12 @@
     @keyframes pop {
       from {
         opacity: 0;
-        transform: translateY(8px);
+        transform: translateY(8px)
       }
 
       to {
         opacity: 1;
-        transform: none;
+        transform: none
       }
     }
 
@@ -173,8 +173,8 @@
     }
 
     .msg.user .bubble {
-      background: rgba(79, 124, 255, 0.14);
-      border-color: rgba(79, 124, 255, 0.35);
+      background: rgba(79, 124, 255, .14);
+      border-color: rgba(79, 124, 255, .35);
     }
 
     .bubble .lang-tag {
@@ -194,7 +194,37 @@
       font-style: italic;
     }
 
-    /* Pipeline trace */
+    /* streaming cursor */
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: var(--green);
+      margin-left: 2px;
+      animation: blink-cur .6s steps(1) infinite;
+      vertical-align: text-bottom;
+    }
+
+    @keyframes blink-cur {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0
+      }
+    }
+
+    /* STT partial */
+    .stt-partial {
+      color: var(--muted);
+      font-style: italic;
+      font-size: 13px;
+    }
+
+    /* trace */
     .trace {
       margin-top: 10px;
       border-top: 1px solid var(--border);
@@ -222,7 +252,7 @@
 
     .step.done .dot {
       background: var(--green);
-      box-shadow: 0 0 8px rgba(34, 211, 154, 0.6);
+      box-shadow: 0 0 8px rgba(34, 211, 154, .6);
     }
 
     .step b {
@@ -239,17 +269,7 @@
       width: 100%;
     }
 
-    .context {
-      margin-top: 10px;
-      font-size: 12px;
-      color: var(--muted);
-      border-left: 2px solid var(--border);
-      padding-left: 10px;
-      max-height: 90px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-    }
-
+    /* typing dots */
     .typing {
       display: inline-flex;
       gap: 4px;
@@ -278,11 +298,11 @@
       0%,
       80%,
       100% {
-        opacity: .2;
+        opacity: .2
       }
 
       40% {
-        opacity: 1;
+        opacity: 1
       }
     }
 
@@ -325,25 +345,21 @@
     }
 
     .tool.rec {
-      background: rgba(255, 92, 122, 0.18);
-      border-color: rgba(255, 92, 122, 0.6);
+      background: rgba(255, 92, 122, .18);
+      border-color: rgba(255, 92, 122, .6);
       color: #ff8ba1;
       animation: pulse 1.2s infinite;
-    }
-
-    .tool.rec:hover {
-      color: #ff8ba1;
     }
 
     @keyframes pulse {
 
       0%,
       100% {
-        box-shadow: 0 0 0 0 rgba(255, 92, 122, 0.35);
+        box-shadow: 0 0 0 0 rgba(255, 92, 122, .35)
       }
 
       50% {
-        box-shadow: 0 0 0 9px rgba(255, 92, 122, 0);
+        box-shadow: 0 0 0 9px rgba(255, 92, 122, 0)
       }
     }
 
@@ -355,7 +371,7 @@
 
     textarea {
       flex: 1;
-      background: rgba(0, 0, 0, 0.25);
+      background: rgba(0, 0, 0, .25);
       border: 1px solid var(--border);
       border-radius: 14px;
       color: var(--text);
@@ -427,11 +443,6 @@
       padding: 4px 6px;
       cursor: pointer;
       outline: none;
-      transition: border .2s;
-    }
-
-    .tts-select:focus {
-      border-color: var(--accent);
     }
 
     .tts-select option {
@@ -462,15 +473,21 @@
       color: var(--text);
     }
 
-    .fileinfo {
-      font-size: 11px;
-      color: var(--green);
-      margin-top: 8px;
-      display: none;
+    /* mode badge */
+    .mode-badge {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(79, 124, 255, .2);
+      border: 1px solid rgba(79, 124, 255, .4);
+      color: var(--accent);
+      margin-left: 6px;
     }
 
-    .fileinfo.show {
-      display: block;
+    .mode-badge.ws {
+      background: rgba(34, 211, 154, .15);
+      border-color: rgba(34, 211, 154, .4);
+      color: var(--green);
     }
 
     .toast {
@@ -494,17 +511,17 @@
       animation: pop .2s ease;
     }
 
-    @media (max-width: 640px) {
+    @media(max-width:640px) {
       .app {
-        padding: 12px 10px 0;
+        padding: 12px 10px 0
       }
 
       .msg {
-        max-width: 92%;
+        max-width: 92%
       }
 
       .badges {
-        display: none;
+        display: none
       }
     }
   </style>
@@ -515,13 +532,14 @@
     <header>
       <div class="logo">T</div>
       <div>
-        <h1>TontumaBot</h1>
-        <div class="sub">Assistant administratif — Wolof · Français · RAG</div>
+        <h1>TontumaBot <span class="mode-badge ws" id="mode-badge">WS</span></h1>
+        <div class="sub">Assistant administratif — Wolof · Français · RAG · Streaming</div>
       </div>
       <div class="badges">
         <span class="badge" id="badge-llm">LLM: —</span>
-        <span class="badge" id="badge-lang">Détecteur actif</span>
-        <span class="badge on" id="badge-v2">V2 — Reranker</span>
+        <span class="badge" id="badge-tts">TTS: —</span>
+        <span class="badge on">V3 — Streaming</span>
+        <button class="badge" id="btn-new-session" style="cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--muted)" title="Nouvelle conversation">🔄 Nouvelle</button>
       </div>
     </header>
 
@@ -533,251 +551,528 @@
             id="rec-timer">micro</span></button>
         <button class="tool" id="btn-image">🖼️ <span>Photo / Doc</span> <span class="fn">OCR</span></button>
       </div>
-      <div class="fileinfo" id="fileinfo"></div>
       <div class="inputrow">
         <textarea id="input" rows="1" placeholder="Écrivez en wolof ou en français…"></textarea>
         <div class="side">
           <label class="switch"><input type="checkbox" id="tts">🔊</label>
-          <select class="tts-select" id="tts-engine">
-            <option value="speecht5">SpeechT5</option>
-            <option value="oolel">Oolel-Voices</option>
+          <select class="tts-select" id="language" aria-label="Langue d'entrée">
+            <option value="">Auto (texte)</option>
+            <option value="fr">Français</option>
+            <option value="wo">Wolof</option>
           </select>
-          <button class="btn" id="send" title="Envoyer">➤</button>
+          <select class="tts-select" id="tts-engine" aria-label="Synthèse vocale">
+            <option value="">TTS adapté à la langue</option>
+            <option value="oolel">Oolel-Voices</option>
+            <option value="speecht5">SpeechT5</option>
+            <option value="edge">Edge TTS</option>
+          </select>
+          <button class="btn" id="send">➤</button>
         </div>
       </div>
       <div class="examples">
         <span class="chip" data-q="dama beug wout kayitu juddu ?">🇸🇳 dama beug wout kayitu juddu ?</span>
-        <span class="chip" data-q="dama beug dem batima A?">🇸🇳 dama beug dem batima A?</span>
-        <span class="chip" data-q="Où dois-je déposer ma demande de carte d'identité ?">Où déposer ma demande ?</span>
+        <span class="chip" data-q="Où dois-je déposer ma demande ?">Où déposer ma demande ?</span>
         <span class="chip" data-q="Comment créer une entreprise au Sénégal ?">Créer une entreprise ?</span>
         <span class="chip" data-q="Combien coûte un passeport ?">Coût d'un passeport ?</span>
+        <span class="chip" data-q="salut">👋 Salut</span>
       </div>
     </div>
-
-    <input type="file" id="file-image" accept="image/*" hidden>
-    <div class="toast" id="toast"></div>
   </div>
 
+  <input type="file" id="file-image" accept="image/*" hidden>
+  <div class="toast" id="toast"></div>
+
   <script>
+    // ============================================================
+    //  Utilitaires
+    // ============================================================
     const $ = id => document.getElementById(id);
     const chat = $('chat');
+    const esc = s => (s == null ? '' : String(s))
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-    // ---- état LLM ----
-    (async () => {
-      try {
-        const res = await fetch('/health');
-        const d = await res.json();
-        $('badge-llm').textContent = 'LLM: ' + (d.llm_ready ? d.llm_provider.toUpperCase() + ' ✓' : 'fallback');
-        $('badge-llm').classList.toggle('on', d.llm_ready);
-        if (d.tts_engine) {
-          const sel = $('tts-engine');
-          sel.value = d.tts_engine;
-        }
-      } catch (_) { }
-    })();
+    // Session ID — persisté dans localStorage, partagé entre onglets
+    let sessionId = localStorage.getItem('tontuma_session_id') || (crypto.randomUUID ? crypto.randomUUID() : 'sess-' + Date.now());
+    localStorage.setItem('tontuma_session_id', sessionId);
 
-    // ---- helpers ----
-    const esc = s => (s == null ? '' : String(s)).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     function toast(msg) {
       const t = $('toast'); t.textContent = msg; t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 3000);
+      setTimeout(() => t.classList.remove('show'), 3200);
+    }
+    function scrollBot() { chat.scrollTop = chat.scrollHeight; }
+
+    // ============================================================
+    //  Cycle de vie de session — limite de questions / expiration
+    // ============================================================
+    function rotateSessionId() {
+      sessionId = crypto.randomUUID ? crypto.randomUUID() : 'sess-' + Date.now();
+      localStorage.setItem('tontuma_session_id', sessionId);
+    }
+    function sessionNotice(text) {
+      addMsg('bot', '<span class="lang-tag">Session</span>' + esc(text));
+      scrollBot();
+    }
+    // Réponse reçue normalement : si le serveur signale que c'était la
+    // dernière question autorisée, prévenir puis préparer une session neuve.
+    function handleSessionState(session) {
+      if (session && session.session_fermee) {
+        sessionNotice(session.message || 'Limite de questions atteinte pour cette session.');
+        rotateSessionId();
+      }
+    }
+    // Erreur HTTP/WS 409 (limite atteinte) ou 410 (session expirée) :
+    // message clair au lieu d'une erreur générique, puis nouvelle session prête.
+    function handleSessionError(status, detail) {
+      if (status === 409 || status === 410) {
+        sessionNotice(detail || 'Cette session est terminée. Une nouvelle conversation a été préparée.');
+        rotateSessionId();
+        return true;
+      }
+      return false;
     }
 
-    function addMsg(role, html, extra) {
+    function addMsg(role, html) {
       const div = document.createElement('div');
       div.className = 'msg ' + role;
       div.innerHTML = '<div class="avatar">' + (role === 'user' ? '👤' : '🤖') + '</div><div class="bubble">' + html + '</div>';
-      if (extra) Object.assign(div.style, extra);
       chat.appendChild(div);
-      chat.scrollTop = chat.scrollHeight;
+      scrollBot();
       return div;
     }
+    function getBubble(msgDiv) { return msgDiv.querySelector('.bubble'); }
 
     function addTyping() {
       const div = document.createElement('div');
-      div.className = 'msg bot';
-      div.id = 'typing';
+      div.className = 'msg bot'; div.id = 'typing';
       div.innerHTML = '<div class="avatar">🤖</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>';
-      chat.appendChild(div);
-      chat.scrollTop = chat.scrollHeight;
+      chat.appendChild(div); scrollBot();
     }
     function removeTyping() { const t = $('typing'); if (t) t.remove(); }
 
-    // ---- pipeline trace dans la réponse ----
-    function buildTrace(t) {
-      if (!t) return '';
-      const steps = [];
-      if (t.input_lang) steps.push(['Langue', String(t.input_lang).toUpperCase(), true]);
-      if (t.wolof_to_french) steps.push(['Traduction WO→FR', esc(t.wolof_to_french.query || t.wolof_to_french), true]);
-      if (t.intent) steps.push(['Intention', esc(t.intent), true]);
-      if (t.search) steps.push(['Recherche', esc(t.search), true]);
-      if (t.reranker && t.reranker.input_docs != null) {
-        steps.push(['Reranker', t.reranker.input_docs + ' docs → ' + t.reranker.output_docs + ' docs', true]);
-      }
-      if (t.french_to_wolof) steps.push(['Traduction FR→WO', esc(String(t.french_to_wolof.seconds ?? t.french_to_wolof)) + 's', true]);
-      if (!steps.length) return '';
-      return '<div class="trace">' + steps.map(s =>
-        '<div class="step done"><span class="dot"></span><b>' + s[0] + ':</b> <span class="val">' + s[1] + '</span></div>'
-      ).join('') + '</div>';
+    // ============================================================
+    //  Health check
+    // ============================================================
+    (async () => {
+      try {
+        const d = await (await fetch('/health')).json();
+        $('badge-llm').textContent = 'LLM: ' + (d.llm_ready ? d.llm_provider.toUpperCase() + ' configuré' : 'non configuré');
+        $('badge-llm').classList.toggle('on', d.llm_ready);
+        $('badge-tts').textContent = 'TTS: ' + (d.tts_engine || '—');
+        $('badge-tts').classList.add('on');
+        $('tts-engine').value = '';
+      } catch (_) { }
+    })();
+
+    // ============================================================
+    //  WebSocket A — Streaming LLM  (/ws/ask)
+    // ============================================================
+    let wsAsk = null;
+
+    function connectWsAsk() {
+      const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+      wsAsk = new WebSocket(`${proto}://${location.host}/ws/ask`);
+      wsAsk.onclose = () => { wsAsk = null; };
+      wsAsk.onerror = () => { wsAsk = null; };
+      return wsAsk;
     }
 
-    function renderAnswer(data) {
-      if (!data || typeof data !== 'object') {
-        addMsg('bot', '❌ Réponse invalide du serveur');
-        return;
-      }
-      const t = data.trace || {};
-      const isWo = t.input_lang === 'wo';
-      const langTag = '<span class="lang-tag">' + (isWo ? 'Réponse en wolof 🇸🇳' : 'Réponse en français') + '</span>';
-
-      let html = langTag;
-      if (data.response_fr && data.response_wo) {
-        html += '<div class="original">FR : ' + esc(data.response_fr) + '</div>';
-      }
-      const mainText = data.response || data.response_fr || data.answer || data.text || '';
-      html += '<div>' + esc(mainText) + '</div>';
-
-      if (data.audio) {
-        html += '<audio class="audio" controls src="/static/response.wav?' + Date.now() + '"></audio>';
-      }
-      html += buildTrace(t);
-      if (t.context) html += '<div class="context">📄 Contexte : ' + esc(String(t.context).slice(0, 400)) + '</div>';
-      addMsg('bot', html);
-    }
-
-    // ---- envoi texte ----
     async function sendText(text, tts) {
       if (!text.trim()) return;
       addMsg('user', esc(text));
-      $('input').value = '';
-      autoGrow();
+      $('input').value = ''; autoGrow();
+      addTyping();
+      $('send').disabled = true;
+
+      // Ouvre un WebSocket frais pour chaque question
+      const ws = connectWsAsk();
+      let botDiv = null;
+      let textNode = null;   // span qui accumule les tokens
+      let fullText = '';
+      let terminal = false;
+      let requestSent = false;
+      let receivedMessage = false;
+      function failStream(message) {
+        if (terminal) return;
+        terminal = true;
+        removeTyping();
+        if (botDiv) {
+          const cursor = getBubble(botDiv).querySelector('.cursor');
+          if (cursor) cursor.remove();
+        }
+        if (textNode) textNode.textContent = 'Réponse interrompue, non validée.';
+        addMsg('bot', esc(message));
+        $('send').disabled = false;
+      }
+
+      ws.onopen = () => {
+        requestSent = true;
+        ws.send(JSON.stringify({
+          question: text,
+          tts: tts,
+          tts_engine: $('tts-engine').value || null,
+          language: $('language').value || null,
+          session_id: sessionId,
+        }));
+      };
+
+      ws.onmessage = (evt) => {
+        if (terminal) return;
+        receivedMessage = true;
+        let msg;
+        try { msg = JSON.parse(evt.data); }
+        catch (_) { failStream('Réponse du serveur invalide.'); ws.close(); return; }
+
+        if (msg.type === 'lang') {
+          // Premier message : créer la bulle bot
+          removeTyping();
+          const isWo = msg.lang === 'wo';
+          const langTag = '<span class="lang-tag">' + (isWo ? 'Réponse en wolof 🇸🇳' : 'Réponse en français') + '</span>';
+          botDiv = addMsg('bot', langTag + '<span id="stream-text"></span><span class="cursor"></span>');
+          textNode = getBubble(botDiv).querySelector('#stream-text');
+          return;
+        }
+
+        if (msg.type === 'query_fr') {
+          // Affiche la traduction WO→FR dans la bulle
+          if (botDiv) {
+            const orig = document.createElement('div');
+            orig.className = 'original';
+            orig.textContent = '🔄 ' + msg.text;
+            getBubble(botDiv).insertBefore(orig, textNode);
+          }
+          return;
+        }
+
+        if (msg.type === 'token') {
+          fullText += msg.text;
+          if (textNode) textNode.textContent = fullText;
+          scrollBot();
+          return;
+        }
+
+        if (msg.type === 'done') {
+          terminal = true;
+          removeTyping();
+          if (msg.session_id && msg.session_id !== sessionId) {
+            sessionId = msg.session_id;
+            localStorage.setItem('tontuma_session_id', sessionId);
+          }
+          if (textNode) textNode.textContent = msg.response || msg.response_fr || '';
+          if (msg.warnings) toast(msg.warnings.join(' '));
+          // Retirer le curseur, afficher la réponse finale
+          if (botDiv) {
+            const cursor = getBubble(botDiv).querySelector('.cursor');
+            if (cursor) cursor.remove();
+            // Si traduction wolof disponible, afficher les deux
+            if (msg.response_wo) {
+              const frDiv = document.createElement('div');
+              frDiv.className = 'original';
+              frDiv.textContent = 'FR : ' + msg.response_fr;
+              getBubble(botDiv).appendChild(frDiv);
+              if (textNode) textNode.textContent = msg.response_wo;
+            }
+            // Audio TTS
+            if (msg.audio) {
+              const audio = document.createElement('audio');
+              audio.className = 'audio'; audio.controls = true;
+              audio.src = msg.audio;
+              getBubble(botDiv).appendChild(audio);
+            }
+          }
+          handleSessionState(msg.session);
+          $('send').disabled = false;
+          ws.close();
+          return;
+        }
+
+        if (msg.type === 'error') {
+          if (handleSessionError(msg.status, msg.text)) {
+            terminal = true;
+            removeTyping();
+            if (botDiv) {
+              const cursor = getBubble(botDiv).querySelector('.cursor');
+              if (cursor) cursor.remove();
+            }
+            $('send').disabled = false;
+          } else {
+            failStream(msg.text || 'Traitement interrompu.');
+          }
+          ws.close();
+        }
+
+        // Audio TTS en arrière-plan (Oolel long à générer)
+        if (msg.type === 'audio_ready') {
+          if (botDiv) {
+            const audio = document.createElement('audio');
+            audio.className = 'audio'; audio.controls = true;
+            audio.src = msg.audio + '?t=' + Date.now();
+            getBubble(botDiv).appendChild(audio);
+            scrollBot();
+          }
+        }
+      };
+
+      ws.onerror = () => {
+        if (terminal) return;
+        if (requestSent || receivedMessage) {
+          failStream('Connexion interrompue. Vous pouvez réessayer manuellement.');
+          ws.close();
+          return;
+        }
+        terminal = true;
+        removeTyping();
+        // Fallback HTTP
+        sendTextHTTP(text, tts).finally(() => { $('send').disabled = false; });
+        ws.close();
+      };
+      ws.onclose = () => {
+        if (wsAsk === ws) wsAsk = null;
+        if (!terminal) failStream('Connexion fermée avant la fin de la réponse.');
+      };
+    }
+
+    // Fallback HTTP si WebSocket échoue
+    async function sendTextHTTP(text, tts) {
       addTyping();
       try {
         const res = await fetch('/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            question: text,
-            tts,
-            tts_engine: $('tts-engine').value
-          })
+          body: JSON.stringify({ question: text, tts, tts_engine: $('tts-engine').value || null, language: $('language').value || null, session_id: sessionId })
         });
         const data = await res.json();
         removeTyping();
-        if (!res.ok) { addMsg('bot', '❌ ' + esc(data.detail || 'Erreur')); return; }
-        renderAnswer(data);
+        if (!res.ok) {
+          if (!handleSessionError(res.status, data.detail)) addMsg('bot', '❌ ' + esc(data.detail || 'Erreur'));
+          return;
+        }
+        if (data.session_id && data.session_id !== sessionId) {
+          sessionId = data.session_id;
+          localStorage.setItem('tontuma_session_id', sessionId);
+        }
+        renderAnswerHTTP(data);
       } catch (e) {
         removeTyping();
         addMsg('bot', '❌ Erreur réseau : ' + esc(e.message));
       }
     }
 
-    // ---- envoi fichier ----
-    async function sendFile(endpoint, file, loadingLabel) {
+    function renderAnswerHTTP(data) {
+      if (!data || typeof data !== 'object') { addMsg('bot', '❌ Réponse invalide'); return; }
+      if (data.warnings) toast(data.warnings.join(' '));
+      const t = data.trace || {};
+      const isWo = t.input_lang === 'wo';
+      const tag = '<span class="lang-tag">' + (isWo ? 'Réponse en wolof 🇸🇳' : 'Réponse en français') + '</span>';
+      let html = tag;
+      if (data.response_fr && data.response_wo)
+        html += '<div class="original">FR : ' + esc(data.response_fr) + '</div>';
+      html += '<div>' + esc(data.response || data.response_fr || '') + '</div>';
+      const msgDiv = addMsg('bot', html);
+      // Audio TTS — data.audio est une URL /static/...
+      if (data.audio) {
+        const audio = document.createElement('audio');
+        audio.className = 'audio'; audio.controls = true;
+        audio.src = data.audio + '?t=' + Date.now();
+        getBubble(msgDiv).appendChild(audio);
+      }
+      handleSessionState(data.session);
+      return msgDiv;
+    }
+
+    // ============================================================
+    //  WebSocket B — STT live  (/ws/stt)
+    //  NOTE : non utilisé pour le micro — on utilise POST /ask/audio
+    //  qui est plus fiable (envoi du blob complet, pas de streaming partiel)
+    // ============================================================
+    let wsStt = null;
+    let mediaRecorder = null;
+    let recStart = 0;
+    let recTimerId = null;
+
+    function recordingExtension(mimeType) {
+      const format = mimeType.toLowerCase().split(';')[0].trim();
+      return ({'audio/mp4': '.m4a', 'video/mp4': '.m4a', 'audio/aac': '.aac',
+        'audio/mpeg': '.mp3', 'audio/mp3': '.mp3', 'audio/wav': '.wav',
+        'audio/x-wav': '.wav', 'audio/ogg': '.ogg', 'audio/webm': '.webm'})[format] || '.webm';
+    }
+
+    function fmtTime(ms) {
+      const s = Math.floor(ms / 1000), m = Math.floor(s / 60), r = s % 60;
+      return m + ':' + String(r).padStart(2, '0');
+    }
+
+    let sttBotDiv = null;
+    let sttTextNode = null;
+
+    async function toggleRecord() {
+      // Stop si en cours
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        return;
+      }
+
+      if (!$('language').value) {
+        toast('Choisissez Français ou Wolof avant de parler : la langue audio ne peut pas être détectée automatiquement.');
+        return;
+      }
+      if (!navigator.mediaDevices || !window.MediaRecorder) {
+        toast('Micro non supporté'); return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const chunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) chunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+          stream.getTracks().forEach(t => t.stop());
+          $('btn-audio').classList.remove('rec');
+          $('rec-timer').textContent = 'micro';
+          clearInterval(recTimerId);
+
+          if (!chunks.length) { toast('Aucun audio capturé'); return; }
+
+          // Construire le blob complet
+          const mimeType = mediaRecorder.mimeType || 'audio/webm';
+          const blob = new Blob(chunks, { type: mimeType });
+          const ext = recordingExtension(mimeType);
+          const file = new File([blob], 'micro' + ext, { type: mimeType });
+
+          // Afficher message utilisateur
+          addMsg('user', '🎙️ <em>Message vocal (' + fmtTime(Date.now() - recStart) + ')</em>');
+          addTyping();
+          $('send').disabled = true;
+          toast('⏳ Transcription en cours…');
+
+          // POST /ask/audio — envoie le blob complet, reçoit transcription + réponse RAG
+          const fd = new FormData();
+          fd.append('file', file);
+          fd.append('tts', $('tts').checked);
+          if ($('tts-engine').value) fd.append('tts_engine', $('tts-engine').value);
+          if ($('language').value) fd.append('language', $('language').value);
+          fd.append('session_id', sessionId);
+
+          try {
+            const res = await fetch('/ask/audio', { method: 'POST', body: fd });
+            const data = await res.json();
+            removeTyping();
+            $('send').disabled = false;
+            if (!res.ok) {
+              if (!handleSessionError(res.status, data.detail)) addMsg('bot', '❌ ' + esc(data.detail || 'Erreur STT/RAG'));
+              return;
+            }
+            if (data.session_id && data.session_id !== sessionId) {
+              sessionId = data.session_id;
+              localStorage.setItem('tontuma_session_id', sessionId);
+            }
+            // Afficher la transcription si disponible dans la trace
+            if (data.trace && data.trace.stt_text) {
+              toast('✅ Transcription : ' + data.trace.stt_text.slice(0, 60));
+            }
+            renderAnswerHTTP(data);
+          } catch (e) {
+            removeTyping();
+            $('send').disabled = false;
+            addMsg('bot', '❌ Erreur réseau : ' + esc(e.message));
+          }
+        };
+
+        // Collecte en un seul bloc à l'arrêt (pas de streaming partiel)
+        mediaRecorder.start();
+        recStart = Date.now();
+        $('rec-timer').textContent = '0:00';
+        $('btn-audio').classList.add('rec');
+        recTimerId = setInterval(() => $('rec-timer').textContent = fmtTime(Date.now() - recStart), 250);
+        toast('🎙️ Enregistrement… recliquez pour arrêter');
+
+      } catch (e) {
+        toast('❌ Micro inaccessible : ' + e.message);
+      }
+    }
+
+    $('btn-audio').addEventListener('click', toggleRecord);
+
+    // ============================================================
+    //  Image / OCR (HTTP — pas de streaming nécessaire)
+    // ============================================================
+    async function sendFile(endpoint, file, label) {
       addMsg('user', '📎 <em>' + esc(file.name) + '</em>');
-      addTyping();
-      toast(loadingLabel);
+      addTyping(); toast(label);
       const fd = new FormData();
       fd.append('file', file);
       fd.append('tts', $('tts').checked);
-      fd.append('tts_engine', $('tts-engine').value);
+      if ($('tts-engine').value) fd.append('tts_engine', $('tts-engine').value);
+          if ($('language').value) fd.append('language', $('language').value);
       try {
         const res = await fetch(endpoint, { method: 'POST', body: fd });
         const data = await res.json();
         removeTyping();
-        if (!res.ok) { addMsg('bot', '❌ ' + esc(data.detail || 'Erreur')); return; }
-        renderAnswer(data);
+        if (!res.ok) {
+          if (!handleSessionError(res.status, data.detail)) addMsg('bot', '❌ ' + esc(data.detail || 'Erreur'));
+          return;
+        }
+        renderAnswerHTTP(data);
       } catch (e) {
         removeTyping();
         addMsg('bot', '❌ Erreur réseau : ' + esc(e.message));
       }
     }
 
-    // ---- events ----
+    function bindFile(btnId, inputId, accept, action) {
+      const btn = $(btnId), inp = $(inputId);
+      inp.accept = accept;
+      btn.addEventListener('click', () => inp.click());
+      inp.addEventListener('change', () => {
+        const f = inp.files[0]; if (!f) return;
+        action(f); inp.value = '';
+      });
+    }
+    bindFile('btn-image', 'file-image', 'image/*',
+      f => sendFile('/ask/image', f, 'Extraction OCR en cours…'));
+
+    // ============================================================
+    //  Events clavier / send
+    // ============================================================
     $('send').addEventListener('click', () => sendText($('input').value, $('tts').checked));
     $('input').addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('send').click(); }
     });
     $('input').addEventListener('input', autoGrow);
     function autoGrow() {
-      const el = $('input');
-      el.style.height = 'auto';
+      const el = $('input'); el.style.height = 'auto';
       el.style.height = Math.min(el.scrollHeight, 120) + 'px';
     }
-
     document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
-      $('input').value = c.dataset.q;
-      autoGrow();
-      $('input').focus();
+      $('input').value = c.dataset.q; autoGrow(); $('input').focus();
     }));
 
-    function bindFile(btnId, inputId, accept, action) {
-      const btn = $(btnId), input = $(inputId);
-      input.accept = accept;
-      btn.addEventListener('click', () => input.click());
-      input.addEventListener('change', () => {
-        const f = input.files[0];
-        if (!f) return;
-        $('fileinfo').textContent = 'Fichier prêt : ' + f.name + ' (' + (f.size / 1024).toFixed(0) + ' Ko)';
-        $('fileinfo').classList.add('show');
-        action(f);
-        input.value = '';
-      });
-    }
-    bindFile('btn-image', 'file-image', 'image/*',
-      f => sendFile('/ask/image', f, 'Extraction OCR en cours…'));
-
-    // ---- Enregistrement micro (MediaRecorder) ----
-    const recBtn = $('btn-audio'), recTimer = $('rec-timer');
-    let mediaRecorder = null, chunks = [], recStart = 0, recTimerId = null;
-
-    function fmtTime(ms) {
-      const s = Math.floor(ms / 1000);
-      const m = Math.floor(s / 60), r = s % 60;
-      return m + ':' + String(r).padStart(2, '0');
-    }
-
-    async function toggleRecord() {
-      if (mediaRecorder && mediaRecorder.state === 'recording') { stopRecording(); return; }
-      if (!navigator.mediaDevices || !window.MediaRecorder) {
-        toast('Micro non supporté par ce navigateur');
-        return;
-      }
+    // ============================================================
+    //  Nouvelle conversation — efface la mémoire serveur + le chat
+    // ============================================================
+    $('btn-new-session').addEventListener('click', async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        chunks = [];
-        mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-        mediaRecorder.onstop = () => {
-          const blob = new Blob(chunks, { type: mediaRecorder.mimeType || 'audio/webm' });
-          stream.getTracks().forEach(t => t.stop());
-          recBtn.classList.remove('rec');
-          recTimer.textContent = 'micro';
-          clearInterval(recTimerId);
-          const file = new File([blob], 'microphone.' + (mediaRecorder.mimeType.includes('mp4') ? 'm4a' : 'webm'), { type: mediaRecorder.mimeType || 'audio/webm' });
-          sendFile('/ask/audio', file, 'Transcription vocale en cours…');
-        };
-        mediaRecorder.start();
-        recStart = Date.now();
-        recTimer.textContent = '0:00';
-        recBtn.classList.add('rec');
-        recTimerId = setInterval(() => recTimer.textContent = fmtTime(Date.now() - recStart), 250);
-        toast('🎙️ Enregistrement… recliquez pour arrêter');
-      } catch (e) {
-        toast('❌ Micro inaccessible : ' + e.message);
-      }
-    }
-    function stopRecording() {
-      if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
-    }
+        await fetch('/session/' + encodeURIComponent(sessionId), { method: 'DELETE' });
+      } catch (_) { /* non bloquant */ }
+      sessionId = crypto.randomUUID ? crypto.randomUUID() : 'sess-' + Date.now();
+      localStorage.setItem('tontuma_session_id', sessionId);
+      chat.innerHTML = '';
+      addMsg('bot',
+        '<span class="lang-tag">Nouvelle conversation</span>' +
+        '🔄 Session réinitialisée. Posez votre nouvelle question.');
+    });
 
-    recBtn.addEventListener('click', toggleRecord);
-
-    // message de bienvenue
+    // ============================================================
+    //  Message de bienvenue
+    // ============================================================
     addMsg('bot',
-      '<span class="lang-tag">Assistant administratif sénégalais — V2</span>' +
+      '<span class="lang-tag">Assistant administratif sénégalais — V3 · WebSocket Streaming</span>' +
       'Salam aléikum ! 👋 Je vous aide pour vos démarches administratives.<br>' +
-      'Posez votre question en <b>wolof</b> ou en <b>français</b> : tapez, <b>parlez dans le micro</b> 🎙️ ou envoyez une photo.');
+      'Posez votre question en <b>wolof</b> ou en <b>français</b> : ' +
+      'tapez, <b>parlez dans le micro</b> 🎙️ ou envoyez une photo.<br>' +
+      '<small style="color:var(--muted)">🔴 Streaming LLM actif — les réponses s\'affichent mot par mot</small>');
   </script>
 </body>
 

@@ -1,4 +1,5 @@
 import re
+import unicodedata
 
 # Mots wolof EXCLUSIFS — n'existent PAS en français courant
 # On retire volontairement : ci, la, li, lo, wi, bi, gi, si, di, bu, su, na, am,
@@ -17,7 +18,7 @@ WOLOF_WORDS = {
     "ana", "naka", "ndax", "loolu", "lëndëm", "kuy", "fooy",
     # mots courants wolof EXCLUSIFS (pas en français)
     "fii", "bés", "bam", "ñu",
-    "wout", "kayitu", "juddu", "jërejëf", "dimbal", "soxla",
+    "wout", "kayitu", "juddu", "jërejëf", "jërëjëf", "jerejef", "dimbal", "soxla",
     "metit", "tontu", "xiif", "naari",
     "jigéen", "góor", "xale", "bëi",
     "kër", "dëkk", "mbedd", "daara", "naan",
@@ -44,7 +45,8 @@ FRENCH_STOPWORDS = {
 
 
 def detect_language(text: str) -> str:
-    words = set(re.findall(r"[\wàâäéèêëîïôöùûüç]+", text.lower()))
+    text = unicodedata.normalize("NFC", text.casefold())
+    words = set(re.findall(r"[\wàâäéèêëîïôöùûüç]+", text))
     if not words:
         return "fr"
 

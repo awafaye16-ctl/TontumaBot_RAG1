@@ -1,4 +1,8 @@
-"""Évaluation RAGAS du système RAG — V3.
+"""Évaluation lexicale locale du système RAG — V3 (pas les métriques RAGAS).
+
+Les noms historiques sont conservés pour compatibilité. Ces heuristiques de
+recouvrement lexical ne valident ni la factualité, ni le support sémantique,
+ni la qualité multilingue; elles ne sont pas comparables aux scores RAGAS.
 
 Métriques calculées :
 
@@ -37,7 +41,7 @@ from typing import Optional
 
 @dataclass
 class TestCase:
-    """Un cas de test pour l'évaluation RAGAS."""
+    """Un cas de test pour l'évaluation lexicale locale, non RAGAS."""
     question: str                          # question de l'utilisateur
     reference_answer: str                  # réponse attendue (vérité terrain)
     language: str = "fr"                   # "fr" ou "wo"
@@ -76,6 +80,9 @@ class EvalResult:
 
     # Abstention correcte (cas "absente")
     abstention_correct: Optional[bool] = None
+    evaluation_method: str = "local_lexical_heuristics_not_ragas"
+    metric_limitations: str = "Word overlap only; not factuality or semantic support; cross-language scores are not comparable."
+    context_source: str = "unavailable"
 
 
 @dataclass
@@ -89,6 +96,8 @@ class EvalSummary:
     mean_answer_correctness: Optional[float] = None
     mean_latency_total_ms:   Optional[float] = None
     abstention_rate:         Optional[float] = None  # taux abstention correcte
+    evaluation_method: str = "local_lexical_heuristics_not_ragas"
+    metric_limitations: str = "Word overlap only; not factuality or semantic support; cross-language scores are not comparable."
 
 
 # =============================================================================
@@ -98,6 +107,7 @@ class EvalSummary:
 def _normalize(text: str) -> str:
     import re, unicodedata
     text = str(text).lower().strip()
+    text = text.replace("\u2019", "'").replace("\u2018", "'").replace("\u02bc", "'")
     text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("utf-8")
     text = re.sub(r"[^\w\s]", " ", text)
     return re.sub(r"\s+", " ", text).strip()
@@ -118,15 +128,20 @@ def _word_f1(reference: str, hypothesis: str) -> float:
 
 
 def _is_abstention(response: str) -> bool:
-    """Détecte si le modèle a correctement refusé de répondre."""
-    r = _normalize(response)
+    """Repère des formulations d'abstention, sans juger leur justification."""
+    r = " " + _normalize(response).replace("_", " ") + " "
     keywords = [
         "information_absente", "information absente",
         "pas mentionne", "ne mentionne pas",
         "aucune information", "je ne sais pas",
         "pas dans le contexte", "ne figure pas",
+        "je n'ai pas trouvé cette information dans ma base documentaire",
+        "je n'ai pas trouvé d'information dans la base documentaire",
+        "je ne dispose pas de cette information",
+        "je n'ai pas cette information",
+        "xamuma", "xamuma tontu",
     ]
-    return any(k in r.replace(" ", "_") or k in r for k in keywords)
+    return any(" " + _normalize(k).replace("_", " ") + " " in r for k in keywords)
 
 
 def _context_precision(question: str, chunks: list[str], reference: str) -> float:
@@ -159,10 +174,9 @@ def _context_recall(question: str, chunks: list[str], reference: str) -> float:
 
 
 def _faithfulness(response: str, chunks: list[str]) -> float:
-    """Mesure si chaque phrase de la réponse est supportée par le contexte.
+    """Proxy lexical : proportion des phrases ayant un F1 > seuil avec un chunk.
 
-    faithfulness = phrases_supportées / phrases_totales
-    Une phrase est supportée si son score F1 avec un chunk > seuil.
+    Un recouvrement lexical ne démontre pas un support factuel ou sémantique.
     """
     import re
     if not chunks or not response.strip():
@@ -170,8 +184,7 @@ def _faithfulness(response: str, chunks: list[str]) -> float:
     sentences = [s.strip() for s in re.split(r"[.!?]\s+", response) if len(s.strip()) > 10]
     if not sentences:
         return 0.0
-    context      = " ".join(chunks)
-    supported    = sum(1 for s in sentences if _word_f1(s, context) > 0.15)
+    supported = sum(1 for s in sentences if max(_word_f1(s, c) for c in chunks) > 0.15)
     return round(supported / len(sentences), 4)
 
 
@@ -205,15 +218,37 @@ def evaluate_single(
     )
 
     # Appel pipeline
-    raw = pipeline_answer(case.question, provider=provider, tts=tts)
+    if case.language not in {"fr", "wo"}:
+        raise ValueError("TestCase.language must be 'fr' or 'wo'")
+    raw = pipeline_answer(case.question, provider=provider, tts=tts, input_lang=case.language)
 
     result.generated_answer = raw.get("response", "")
     trace                   = raw.get("trace", {})
 
     # Chunks récupérés depuis la trace
     retrieval = trace.get("retrieval", {})
-    result.retrieved_chunks = [c["text"] for c in retrieval.get("chunks", [])]
-    result.n_chunks         = retrieval.get("n_reranked", 0)
+    chunks = retrieval.get("context_chunks", trace.get("context_chunks"))
+    if chunks is not None:
+        result.retrieved_chunks = [
+            c if isinstance(c, str) else c.get("full_text", c.get("text", ""))
+            for c in chunks
+        ]
+        result.context_source = "full_context_chunks"
+    else:
+        entries = retrieval.get("chunks", [])
+        texts = [c.get("full_text", c.get("text", "")) for c in entries]
+        truncated = any(
+            c.get("truncated", False) or ("full_text" not in c and text.endswith(("…", "...")))
+            for c, text in zip(entries, texts)
+        )
+        if texts and not truncated:
+            result.retrieved_chunks = texts
+            result.context_source = "retrieval_chunks"
+        elif trace.get("context"):
+            result.retrieved_chunks = [trace["context"]]
+            result.context_source = "full_context_without_chunk_boundaries"
+    result.retrieved_chunks = [c for c in result.retrieved_chunks if c.strip()]
+    result.n_chunks = len(result.retrieved_chunks)
 
     # Latences
     result.latency_retrieval_ms = retrieval.get("latency_hybrid_ms")
@@ -223,7 +258,9 @@ def evaluate_single(
 
     # Métriques
     if case.category == "absente":
-        result.abstention_correct = _is_abstention(result.generated_answer)
+        result.abstention_correct = (
+            _is_abstention(result.generated_answer) or _is_abstention(raw.get("response_fr", ""))
+        )
     else:
         result.context_precision  = _context_precision(
             case.question, result.retrieved_chunks, case.reference_answer
@@ -265,7 +302,7 @@ def evaluate_pipeline(
     """
     results: list[EvalResult] = []
     for i, case in enumerate(test_cases):
-        print(f"[RAGAS] {i+1}/{len(test_cases)} — {case.question[:60]}...")
+        print(f"[Évaluation lexicale — non RAGAS] {i+1}/{len(test_cases)} — {case.question[:60]}...")
         r = evaluate_single(case, provider=provider)
         results.append(r)
 
@@ -274,7 +311,7 @@ def evaluate_pipeline(
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump([asdict(r) for r in results], f, ensure_ascii=False, indent=2)
-        print(f"[RAGAS] Résultats sauvegardés → {output_path}")
+        print(f"[Évaluation lexicale — non RAGAS] Résultats sauvegardés → {output_path}")
 
     # Agrégation
     def _mean(values: list) -> Optional[float]:
@@ -298,7 +335,8 @@ def evaluate_pipeline(
 
     # Affichage console
     print("\n" + "=" * 55)
-    print("  RAGAS — Résumé d'évaluation V3")
+    print("  Heuristiques lexicales locales — non RAGAS — V3")
+    print("  Recouvrement de mots uniquement; aucune validation factuelle.")
     print("=" * 55)
     print(f"  Cas évalués              : {summary.n_cases}")
     print(f"  Context Precision        : {summary.mean_context_precision}")

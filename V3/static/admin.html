@@ -458,6 +458,13 @@
             </div>
         </header>
 
+        <div class="card">
+            <label for="admin-key">Clé administrateur (si configurée sur le serveur)</label>
+            <input type="password" id="admin-key" autocomplete="off" spellcheck="false">
+            <button class="btn" id="btn-auth">Actualiser la connexion</button>
+            <div class="sub">La clé reste dans cet onglet et n'est pas enregistrée dans le navigateur.</div>
+        </div>
+
         <!-- ── Upload multiple ───────────────────────────────────── -->
         <div class="card">
             <h2>📥 Ajouter des documents</h2>
@@ -531,10 +538,20 @@
         }
 
         /* ── Stats ──────────────────────────────────────────────────── */
+        function adminFetch(path, options = {}) {
+            if (!path.startsWith('/admin/')) throw new Error('Route administrative invalide');
+            const headers = new Headers(options.headers);
+            const key = $('admin-key').value.trim();
+            if (key) headers.set('Authorization', 'Bearer ' + key);
+            return fetch(path, {...options, headers});
+        }
+        $('btn-auth').addEventListener('click', () => refresh());
+
         async function refresh() {
             try {
-                const res = await fetch('/admin/documents');
+                const res = await adminFetch('/admin/documents');
                 const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Erreur de chargement');
                 $('stat-docs').textContent = data.documents.length;
                 $('stat-chunks').textContent = data.total_chunks;
 
@@ -555,7 +572,7 @@
         <button class="del" title="Supprimer ce document">🗑</button>`;
                     div.querySelector('.del').addEventListener('click', async () => {
                         if (!confirm(`Supprimer « ${d.title} » ?`)) return;
-                        const r = await fetch('/admin/documents/' + encodeURIComponent(d.id), { method: 'DELETE' });
+                        const r = await adminFetch('/admin/documents/' + encodeURIComponent(d.id), { method: 'DELETE' });
                         if (r.ok) { toast('✅ Document supprimé'); refresh(); }
                         else toast('❌ Erreur suppression');
                     });
@@ -668,7 +685,7 @@
                 fd.append('title', f.name.replace(/\.[^/.]+$/, ''));  // titre = nom sans extension
 
                 try {
-                    const r = await fetch('/admin/documents', { method: 'POST', body: fd });
+                    const r = await adminFetch('/admin/documents', { method: 'POST', body: fd });
                     const d = await r.json();
                     if (!r.ok) throw new Error(d.detail || 'Erreur serveur');
                     statusEl.textContent = `✅ ${d.chunks} chunks`;
@@ -706,7 +723,7 @@
             fd.append('title', title || 'Document manuel');
 
             try {
-                const r = await fetch('/admin/documents', { method: 'POST', body: fd });
+                const r = await adminFetch('/admin/documents', { method: 'POST', body: fd });
                 const d = await r.json();
                 if (!r.ok) throw new Error(d.detail || 'Erreur');
                 toast(`✅ ${d.chunks} chunks indexés — « ${d.title} »`);
@@ -723,10 +740,15 @@
         /* ── Vider toute la base ────────────────────────────────────── */
         $('btn-clear-all').addEventListener('click', async () => {
             if (!confirm('Supprimer TOUS les documents de la base vectorielle ?')) return;
-            const r = await fetch('/admin/documents/clear', { method: 'POST' });
-            const d = await r.json();
-            toast(`🗑 Base vidée (${d.deleted_chunks} chunks supprimés)`);
-            refresh();
+            try {
+                const r = await adminFetch('/admin/documents/clear', { method: 'POST' });
+                const d = await r.json();
+                if (!r.ok) throw new Error(d.detail || 'Erreur de suppression');
+                toast(`Base vidée (${d.deleted_chunks} chunks supprimés)`);
+                refresh();
+            } catch (e) {
+                toast(e.message);
+            }
         });
 
         /* ── Init ────────────────────────────────────────────────────── */

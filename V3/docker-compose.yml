@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  tontuma_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tontuma_bot_container
+    ports:
+      - "8008:8008"
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+      - ./static:/app/static
+      - ./hf_cache:/app/data/hf_cache
+    environment:
+      - ENV=production

@@ -19,7 +19,9 @@ def _contains_keyword(q: str, kw: str) -> bool:
 
 
 def detect_intent(query_fr: str) -> str:
-    q = query_fr.lower()
+    q = re.sub(r"\s+", " ", query_fr.casefold()).strip()
+    if re.search(r"\bou\s+(?:est|sont|se\s+trouve(?:nt)?|aller|deposer)\b", q):
+        return "orientation"
     if any(_contains_keyword(q, kw) for kw in ORIENTATION_KEYWORDS):
         return "orientation"
     return "procedure"

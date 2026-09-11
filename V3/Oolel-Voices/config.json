@@ -1,0 +1,15 @@
+{
+  "model_type": "oolel_voices",
+  "exaggeration": 0.5,
+  "cfg_weight": 0.5,
+  "temperature": 0.8,
+  "repetition_penalty": 1.2,
+  "min_p": 0.05,
+  "top_p": 1.0,
+  "sample_rate": 22050,
+  "auto_map": {
+    "AutoConfig": "configuration_oolel_voices.OolelVoicesConfig",
+    "AutoModel": "modeling_oolel_voices.OolelVoicesForInference"
+  },
+  "transformers_version": "4.40.0"
+}

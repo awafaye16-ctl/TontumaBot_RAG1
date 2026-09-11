@@ -1,0 +1,93 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  TontumaBot V3 — Fichiers à exclure de l'image Docker
+#  Objectif : image légère, sans secrets, sans cache, sans données lourdes
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Environnement Python ─────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+
+# ── Fichiers de configuration sensibles ──────────────────────────────────────
+.env
+.env.example
+.env.local
+.env.*
+
+# ── Cache Python ─────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Git ──────────────────────────────────────────────────────────────────────
+.git/
+.gitignore
+.gitattributes
+
+# ── Données volumineuses ─────────────────────────────────────────────────────
+data/chroma/
+data/chroma_old/
+data/documents/
+data/hf_cache/
+datasets/
+*.csv
+*.xlsx
+
+# ── Modèles IA / poids ───────────────────────────────────────────────────────
+models/
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+*.ckpt
+
+# ── Jupyter ──────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── IDE / éditeurs ───────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ── Logs et résultats ────────────────────────────────────────────────────────
+*.log
+logs/
+output/
+outputs/
+static/audio/
+static/uploads/
+
+# ── Fichiers temporaires ─────────────────────────────────────────────────────
+tmp/
+temp/
+*.tmp
+*.temp
+*.swp
+*.bak
+*.cache
+
+# ── Docker ───────────────────────────────────────────────────────────────────
+docker-compose.override.yml
+Dockerfile.*
+*.dockerfile
+
+# ── Documentation / fichiers inutiles en runtime ─────────────────────────────
+coach.md
+PROMPT_V3.md
+image.png
+
+# ── Outils de test / build ───────────────────────────────────────────────────
+.coverage
+htmlcov/
+tests/
+build/
+dist/

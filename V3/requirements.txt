@@ -19,6 +19,7 @@ safetensors
 # ── STT ───────────────────────────────────────────────────────────────────────
 # M9and2M/whisper-small-wolof — chargé via transformers depuis dossier local
 librosa>=0.10.2       # chargement audio multi-format
+av                    # décodeur WebM/opus du micro (alternative à ffmpeg)
 
 # ── RAG ───────────────────────────────────────────────────────────────────────
 rank-bm25
@@ -40,12 +41,16 @@ google-generativeai
 # soynade-research/Oolel-Voices — téléchargé via huggingface_hub.snapshot_download
 huggingface_hub
 soundfile
+torchaudio            # sauvegarde du WAV Oolel (conforme README officiel)
 edge-tts              # fallback TTS français
 diffusers==0.29.0     # dépendance Oolel-Voices
 conformer==0.3.2      # dépendance Oolel-Voices
 omegaconf             # dépendance Oolel-Voices
 scipy
-numpy<2.0
+numpy<2.0             # compatibilité torch 2.2
+s3tokenizer==0.3.0    # REQUIS par Oolel-Voices (models/s3tokenizer/s3tokenizer.py)
+num2words             # dépendance Oolel-Voices
+torchcodec            # dépendance Oolel-Voices
 
 # ── TTS SpeechT5 (fallback) ──────────────────────────────────────────────────
 datasets              # pour le speaker embedding xvector (CMU Arctic)
